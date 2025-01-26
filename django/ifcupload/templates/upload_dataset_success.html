@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Success</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #FAEBD7, #FFEBCD);
+            color: #2F4F4F;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            flex-direction: column;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            background-color: #27496D;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            margin-right: 10px; 
+        }
+
+        .button:hover {
+            background-color: #2F4F4F;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <p>Dataset has been uploaded successfully!</p>
+
+        <!-- Button to take user to the 3D Viewer -->
+        <a href="http://127.0.0.1:8000/" class="button">Take me to the 3D Viewer!</a>
+
+        <!-- Button to upload another file -->
+        <a href="http://127.0.0.1:8000/ifcupload/upload-dataset/" class="button">Upload another Dataset</a>
+    </div>
+</body>
+</html>

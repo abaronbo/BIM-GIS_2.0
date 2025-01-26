@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Dataset</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #FAEBD7, #FFEBCD);
+            color: #2F4F4F;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            flex-direction: column;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #27496D;
+            border-radius: 5px;
+            width: 80%;
+        }
+
+        input[type="submit"] {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            background-color: #27496D;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2F4F4F;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h2>Upload Dataset</h2>
+        <div>
+            <p>Please ensure that the headers for the BAG ID and file path in your CSV dataset are named <strong>ref_bag_id</strong> and <strong>file_path</strong>, respectively. Other attributes in the dataset will not affect the functionality of the tool.</p>
+        </div>        
+        <form action="/ifcupload/upload-dataset/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="dataset_file" name="dataset_file" accept=".csv" required><br>
+            <!-- Button to upload a dataset -->
+            <input type="submit" value="Upload Dataset (CSV)">
+        </form>
+    </div>
+</body>
+</html>

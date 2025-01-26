@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload IFC File</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        #mainContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .upload-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #27496D;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background-color: #27496D;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d3a58;
+        }
+
+        .btn-secondary {
+            background-color: #FF5C5C;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #FF3C3C;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #2F4F4F;
+            margin-bottom: 20px;
+        }
+
+        input[readonly] {
+            background-color: #e9ecef;
+            color: #495057;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContainer">
+        <div class="upload-box">
+            <h1>Upload IFC File</h1>
+            <p class="message">
+                We could not find an IFC file associated with this building.<br>
+                Please upload the relevant file below.
+            </p>
+            <form action="/ifcupload/upload-ifc/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <!-- BAG ID -->
+                <input type="text" id="ref_bag_id" name="ref_bag_id" class="form-control" placeholder="Ref:Bag ID" value="{{ form.ref_bag_id.value }}" readonly>
+                <!-- File Upload -->
+                <input type="file" id="ifc_file" name="ifc_file" class="form-control" accept=".ifc" required>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100">Upload IFC File</button>
+            </form>
+            <!-- Back to Viewer Button -->
+            <a href="http://127.0.0.1:8000/" class="btn btn-secondary w-100 mt-3">Back to 3D Viewer</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIM-GIS</title>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.110/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.110/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 10px;
+            background-color: #27496D;
+            color: white;
+            margin: 0;
+            width: 100%;
+            height: 60px;
+            border-radius: 8px 8px 0 0; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logout-button {
+            position: absolute;
+            right: 20px; 
+            background-color: #FF5C5C;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        .logout-button:hover {
+            background-color: #FF3C3C;
+        }
+
+        #mainContainer {
+            display: flex;
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        #formSection {
+            width: 20%;
+            padding: 10px;
+            background-color: #f0f0f0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            border-right: 2px solid #27496D;
+            border-radius: 0 0 8px 8px; 
+        }
+
+        .form-control {
+            margin-bottom: 10px;
+        }
+
+        #contentArea {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding-left: 10px;
+            border-radius: 0 0 8px 8px; 
+        }
+
+        #resultsContainer {
+            height: 33.33%;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 2px solid #27496D;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #cesiumContainer {
+            height: 66.66%;
+            width: 100%;
+            border: 2px solid #27496D;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #27496D;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .button {
+            margin-top: 10px;
+        }
+
+        #updateRequestsContainer {
+            max-height: 200px; 
+            overflow-y: auto;
+            background-color: #fff;
+            border: 2px solid #27496D;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #floodDefenseTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #floodDefenseTable th,
+        #floodDefenseTable td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        #floodDefenseTable th {
+            background-color: #27496D;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        #floodDefenseTable tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        BIM-GIS
+        <a href="/logout/" class="logout-button">Logout</a>
+    </h1>
+
+    <!-- Main content container -->
+    <div id="mainContainer">
+        <div id="formSection">
+            <form>
+                <input type="text" id="BAG_ID" class="form-control" placeholder="Enter BAG ID">
+                <input type="text" id="straatNaam" class="form-control" placeholder="Enter Street Name">
+                <input type="text" id="huisnummer" class="form-control" placeholder="Enter House Number">
+                <input type="text" id="stad" class="form-control" placeholder="Enter City">
+                <input type="text" id="postcode" class="form-control" placeholder="Enter Postcode">
+                <input type="text" id="Bouwjaar" class="form-control" placeholder="Enter Construction Year">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="includeFloodDefenseToggle">
+                    <label class="form-check-label" for="includeFloodDefenseToggle">Include Flood Defense Mechanisms</label>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="submitFilters()">Submit</button>
+                <a href="http://127.0.0.1:8000/ifcupload/upload-dataset/" class="btn btn-outline-primary w-100 button">Upload Dataset (CSV)</a>
+            </form>
+            <h3>Update Requests</h3>
+            <div id="updateRequestsContainer">
+                <table id="floodDefenseTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ref_bag_id</th>
+                        </tr>
+                    </thead>
+                    <tbody id="floodDefenseTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Content area (Table + Viewer) -->
+        <div id="contentArea">
+            <div id="resultsContainer">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>BAG ID</th>
+                            <th>Street Name</th>
+                            <th>House Number</th>
+                            <th>City</th>
+                            <th>Postcode</th>
+                            <th>Construction Year</th>
+                            <th>Status</th>
+                            <th>Use Function</th>
+                            <th>City View</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Cesium Viewer -->
+            <div id="cesiumContainer"></div>
+        </div>
+    </div>
+<!-- Modal for Flood Defense Mechanism Details -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Flood Defense Mechanism Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="overflow-x: auto;">
+                <table class="table table-bordered" id="detailsTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th> 
+                            <th>Category</th>
+                            <th>Height (cm)</th> 
+                            <th>Width (cm)</th> 
+                            <th>Year of Review</th>
+                            <th>Attached to IFC Element</th> 
+                            <th>Element Class</th> 
+                            <th>Element GlobalID</th> 
+                            <th>Fragment ID</th> 
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                    </tbody>
+                </table>
+                <!-- Inspect Building Button -->
+                <button type="button" class="btn btn-primary w-100 mt-3" id="inspectButton" onclick="inspectBuilding()">Inspect Building</button>
+                <!-- Accept Flood Defense Mechanism Button -->
+                <button type="button" class="btn btn-success w-100 mt-3" id="acceptFloodDefenseButton" onclick="acceptFloodDefenseMechanism()">Accept Flood Defense Mechanism</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+
+    <script>
+async function submitFilters() {
+    const BAG_ID = document.getElementById('BAG_ID').value;
+    const straatNaam = document.getElementById('straatNaam').value;
+    const huisnummer = document.getElementById('huisnummer').value;
+    const stad = document.getElementById('stad').value;
+    const postcode = document.getElementById('postcode').value;
+    const Bouwjaar = document.getElementById('Bouwjaar').value;
+    const includeFloodDefense = document.getElementById('includeFloodDefenseToggle').checked; 
+
+    const queryParams = new URLSearchParams();
+    if (BAG_ID) queryParams.append('BAG_ID', BAG_ID);
+    if (straatNaam) queryParams.append('straatNaam', straatNaam);
+    if (stad) queryParams.append('stad', stad);
+    if (huisnummer) queryParams.append('huisnummer', huisnummer);
+    if (postcode) queryParams.append('postcode', postcode);
+    if (Bouwjaar) queryParams.append('Bouwjaar', Bouwjaar);
+    queryParams.append('includeFloodDefense', includeFloodDefense); 
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/sparql_filter/sparql_municipality/?${queryParams.toString()}`);
+        const data = await response.json();
+
+        if (data.error) {
+            displayErrors(data.messages);
+        } else {
+            displayResults(data);
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+
+// Function to display errors in the table
+function displayErrors(messages) {
+    const resultsTableBody = document.getElementById('resultsTableBody');
+    resultsTableBody.innerHTML = ''; 
+
+    const row = document.createElement('tr');
+    const errorCell = document.createElement('td');
+    errorCell.setAttribute('colspan', '9'); 
+    errorCell.textContent = `Input Error: ${messages.join(', ')}`;
+    errorCell.style.color = 'red';
+    row.appendChild(errorCell);
+
+    resultsTableBody.appendChild(row);
+}
+
+    
+        // Function to display the query results in the resultsTableBody as a table
+        function displayResults(data) {
+            const resultsTableBody = document.getElementById('resultsTableBody');
+            resultsTableBody.innerHTML = ''; 
+    
+            if (data.results && data.results.bindings.length > 0) {
+                data.results.bindings.forEach(binding => {
+                    const row = document.createElement('tr');
+    
+                    const bagID = binding.BAG_ID ? binding.BAG_ID.value : 'N/A';
+                    const polygon = binding.polygon ? binding.polygon.value : null;
+    
+                    row.innerHTML = `
+                        <td>${bagID}</td>
+                        <td>${binding.straatNaam ? binding.straatNaam.value : 'N/A'}</td>
+                        <td>${binding.huisnummer ? binding.huisnummer.value : 'N/A'}</td>
+                        <td>${binding.stad ? binding.stad.value : 'N/A'}</td>
+                        <td>${binding.postcode ? binding.postcode.value : 'N/A'}</td>
+                        <td>${binding.Bouwjaar ? binding.Bouwjaar.value : 'N/A'}</td>
+                        <td>${binding.status ? binding.status.value : 'N/A'}</td>
+                        <td>${binding.gebruiksdoelen ? binding.gebruiksdoelen.value : 'N/A'}</td>
+                        <td><a href="#" onclick="zoomToPolygon('${polygon}', '${bagID}')">Display in map</a></td>
+                    `;
+                    resultsTableBody.appendChild(row);
+                });
+            } else {
+                resultsTableBody.innerHTML = '<tr><td colspan="9">No results found.</td></tr>';
+            }
+        }
+    
+        // Function to highlight the buildings on Cesium map
+        function highlightCesiumObjects(bagID) {
+            const conditions = [
+                [`\${feature['bagpandid']} === '${bagID}'`, "color('#ed7af8')"], 
+                ["true", "color('#ffffff')"] 
+            ];
+    
+            BuildingsTileset.style = new Cesium.Cesium3DTileStyle({
+                color: {
+                    conditions: conditions
+                }
+            });
+        }
+    
+        // Function to convert RD New (EPSG:28992) to WGS84 (EPSG:4326)
+        function convertRdToWgs84(x, y) {
+            const x0 = 155000.000;
+            const y0 = 463000.000;
+    
+            const f0 = 52.156160556;
+            const l0 = 5.387638889;
+    
+            const a01 = 3236.0331637;
+            const b10 = 5261.3028966;
+            const a20 = -32.5915821;
+            const b11 = 105.9780241;
+            const a02 = -0.2472814;
+            const b12 = 2.4576469;
+            const a21 = -0.8501341;
+            const b30 = -0.8192156;
+            const a03 = -0.0655238;
+            const b31 = -0.0560092;
+            const a22 = -0.0171137;
+            const b13 = 0.0560089;
+            const a40 = 0.0052771;
+            const b32 = -0.0025614;
+            const a23 = -0.0003859;
+            const b14 = 0.0012770;
+            const a41 = 0.0003314;
+            const b50 = 0.0002574;
+            const a04 = 0.0000371;
+            const b33 = -0.0000973;
+            const a42 = 0.0000143;
+            const b51 = 0.0000293;
+            const a24 = -0.0000090;
+            const b15 = 0.0000291;
+    
+            const dx = (x - x0) * Math.pow(10, -5);
+            const dy = (y - y0) * Math.pow(10, -5);
+    
+            let df = a01 * dy + a20 * Math.pow(dx, 2) + a02 * Math.pow(dy, 2) + a21 * Math.pow(dx, 2) * dy + a03 * Math.pow(dy, 3);
+            df += a40 * Math.pow(dx, 4) + a22 * Math.pow(dx, 2) * Math.pow(dy, 2) + a04 * Math.pow(dy, 4) + a41 * Math.pow(dx, 4) * dy;
+            df += a23 * Math.pow(dx, 2) * Math.pow(dy, 3) + a42 * Math.pow(dx, 4) * Math.pow(dy, 2) + a24 * Math.pow(dx, 2) * Math.pow(dy, 4);
+    
+            const f = f0 + df / 3600;
+    
+            let dl = b10 * dx + b11 * dx * dy + b30 * Math.pow(dx, 3) + b12 * dx * Math.pow(dy, 2) + b31 * Math.pow(dx, 3) * dy;
+            dl += b13 * dx * Math.pow(dy, 3) + b50 * Math.pow(dx, 5) + b32 * Math.pow(dx, 3) * Math.pow(dy, 2) + b14 * dx * Math.pow(dy, 4);
+            dl += b51 * Math.pow(dx, 5) * dy + b33 * Math.pow(dx, 3) * Math.pow(dy, 3) + b15 * dx * Math.pow(dy, 5);
+    
+            const l = l0 + dl / 3600;
+    
+            const fWgs = f + (-96.862 - 11.714 * (f - 52) - 0.125 * (l - 5)) / 100000;
+            const lWgs = l + (-37.902 + 0.329 * (f - 52) - 14.667 * (l - 5)) / 100000;
+    
+            console.log(`Converted WGS84 coordinates: Latitude: ${fWgs}, Longitude: ${lWgs}`);
+    
+            return {
+                lat: fWgs,
+                lon: lWgs
+            };
+        }
+    
+        // Function to parse WKT polygon and zoom to the building's location
+        function zoomToPolygon(wktPolygon, bagID) {
+            if (!wktPolygon) return;
+    
+            const coordsString = wktPolygon.match(/\(\((.*)\)\)/)[1];
+            const coordsArray = coordsString.split(',').map(coord => coord.trim().split(' ').map(Number));
+    
+            const positions = coordsArray.map(coord => {
+                const convertedCoords = convertRdToWgs84(coord[0], coord[1]);
+                return Cesium.Cartesian3.fromDegrees(convertedCoords.lon, convertedCoords.lat);
+            });
+    
+            const boundingSphere = Cesium.BoundingSphere.fromPoints(positions);
+    
+            viewer.camera.flyToBoundingSphere(boundingSphere, {
+                duration: 2.0,
+                offset: new Cesium.HeadingPitchRange(
+                    Cesium.Math.toRadians(90),
+                    Cesium.Math.toRadians(-60.0),
+                    boundingSphere.radius * 20.0
+                )
+            });
+
+            highlightCesiumObjects(bagID);
+        }
+        async function loadFloodDefenseMechanisms() {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/ifcupload/get-flood-defense-mechanisms/");
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            const tableBody = document.getElementById("floodDefenseTableBody");
+            tableBody.innerHTML = ''; 
+
+            // Process the response to populate grouped ref_bag_ids
+            data.defense_mechanisms.forEach(item => {
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+
+                cell.textContent = item.ref_bag_id;
+                cell.style.cursor = "pointer";
+                // Attach click event to show detailed modal
+                cell.addEventListener("click", () => showDetailsModal(item.details, item.ref_bag_id));
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            });
+        } else {
+            console.error("Failed to load flood defense mechanisms.");
+        }
+    } catch (error) {
+        console.error("Error fetching flood defense mechanisms:", error);
+    }
+}
+
+let currentRefBagId; 
+
+function showDetailsModal(details, refBagId) {
+    currentRefBagId = refBagId; 
+
+    const detailsTableBody = document.getElementById("detailsTable").querySelector("tbody");
+    detailsTableBody.innerHTML = ''; 
+
+    // Populate the modal with rows for each detail associated with ref_bag_id
+    details.forEach(detail => {
+        const row = document.createElement("tr");
+        console.log("Detail being added to modal:", detail);
+        row.innerHTML = `
+            <td>${detail.type || "N/A"}</td> <!-- Type -->
+            <td>${detail.category || "N/A"}</td> <!-- Category -->
+            <td>${detail.height || "N/A"} cm</td> <!-- Height -->
+            <td>${detail.width || "N/A"} cm</td> <!-- Width -->
+            <td>${detail.year_of_review || "N/A"}</td> <!-- Year of review -->
+            <td>${detail.name || "N/A"}</td> <!-- Attached to IFC Element -->
+            <td>${detail.class_type || "N/A"}</td> <!-- Element Class -->
+            <td>${detail.global_id || "N/A"}</td> <!-- Element GlobalID -->
+            <td>${detail.fragment_id_map || "N/A"}</td> <!-- Element FragmentID -->
+        `;
+        detailsTableBody.appendChild(row);
+    });
+
+    // Show the modal
+    const detailsModal = new bootstrap.Modal(document.getElementById("detailsModal"));
+    detailsModal.show();
+}
+
+
+
+async function inspectBuilding() {
+    if (!currentRefBagId) {
+        console.error("No ref_bag_id is set for inspection.");
+        return;
+    }
+
+    // Collect globalIds from the modal
+    const globalIds = [];
+    const fragmentIdMaps = [];
+
+    Array.from(document.querySelectorAll("#detailsTable tbody tr")).forEach(row => {
+        const globalId = row.cells[7].textContent; 
+        const fragmentIdMap = row.cells[8].textContent; 
+
+        if (globalId) globalIds.push(globalId);
+        if (fragmentIdMap) fragmentIdMaps.push(fragmentIdMap);
+    });
+
+    console.log('Collected globalIds:', globalIds);
+    console.log('Collected fragmentIdMaps:', fragmentIdMaps);
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/ifcupload/get-ifc-url?ref_bag_id=${currentRefBagId}`);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            // Encode globalIds and fragmentIdMaps as JSON strings
+            const globalIdsParam = encodeURIComponent(JSON.stringify(globalIds));
+            const fragmentIdMapsParam = encodeURIComponent(JSON.stringify(fragmentIdMaps));
+
+            // Construct the viewer URL with both parameters
+            const ifcUrl = `http://127.0.0.1:8000${data.ifc_url}`;
+            const viewerUrl = `http://localhost:5173/?ifcUrl=${encodeURIComponent(ifcUrl)}&ref_bag_id=${encodeURIComponent(currentRefBagId)}&globalIds=${globalIdsParam}&fragmentIdMaps=${fragmentIdMapsParam}`;
+
+            // Log the URL
+            console.log('Viewer URL:', viewerUrl);
+
+            // Open the IFC viewer with both globalIds and fragmentIdMaps as URL parameters
+            window.open(viewerUrl, '_blank');
+
+        } else {
+            console.error("IFC file not found.");
+            alert("IFC file not found for this building.");
+        }
+    } catch (error) {
+        console.error("Error fetching IFC URL:", error);
+        alert("Failed to fetch IFC file for this building.");
+    }
+}
+
+async function acceptFloodDefenseMechanism() {
+    if (!currentRefBagId) {
+        alert("No ref_bag_id is set. Please select a valid flood defense mechanism.");
+        return;
+    }
+
+    const fdmDetails = [];
+    Array.from(document.querySelectorAll("#detailsTable tbody tr")).forEach(row => {
+        const type = row.cells[0].textContent.trim();
+        const category = row.cells[1].textContent.trim();
+        const height = row.cells[2].textContent.trim();
+        const width = row.cells[3].textContent.trim();
+        const yearOfReview = row.cells[4].textContent.trim();
+        const attachedTo = row.cells[5].textContent.trim();
+        const globalId = row.cells[7].textContent.trim();
+
+        if (globalId) {
+            fdmDetails.push({
+                type,
+                category,
+                height: height.replace(" cm", ""), 
+                width: width.replace(" cm", ""), 
+                year_of_review: yearOfReview,
+                global_id: globalId
+            });
+        }
+    });
+
+    if (fdmDetails.length === 0) {
+        alert("No FDM details available for submission.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/ifcupload/add-flood-defense-mechanism/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                ref_bag_id: currentRefBagId,
+                fdm_details: fdmDetails
+            }),
+        });
+
+        const data = await response.json();
+        if (data.status === "success") {
+            alert("Flood defense mechanism triples added successfully.");
+        } else {
+            alert(`Failed to add triples: ${data.message}`);
+        }
+    } catch (error) {
+        alert("An error occurred while adding flood defense mechanism triples.");
+        console.error(error);
+    }
+}
+
+
+        async function initializeCesium() {
+            Cesium.Ion.defaultAccessToken = 'YourToken';
+    
+            window.viewer = new Cesium.Viewer('cesiumContainer', {
+                terrain: Cesium.Terrain.fromWorldTerrain(),
+                animation: false,
+                timeline: false,
+                baseLayerPicker: false,
+                shadows: false,
+                shouldAnimate: false
+            });
+    
+            const provider = new Cesium.WebMapTileServiceImageryProvider({
+                url: "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=grijs&STYLE=default&FORMAT=image/png&TILEMATRIXSET=EPSG:3857&TILEMATRIX={TileMatrix}&TILEROW={TileRow}&TILECOL={TileCol}",
+                layer: "grijs",
+                style: "default",
+                format: "image/png",
+                tileMatrixSetID: "EPSG:3857",
+                maximumLevel: 19,
+                credit: "BRT Achtergrondkaart provided by PDOK"
+            });
+            
+            
+            viewer.imageryLayers.add(new Cesium.ImageryLayer(provider));
+            viewer.scene.debugShowFramesPerSecond = true; 
+    
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(5.48505, 51.44623, 400),
+                orientation: {
+                    heading: Cesium.Math.toRadians(0.0),
+                    pitch: Cesium.Math.toRadians(-15.0),
+                }
+            });
+    
+            try {
+                window.BuildingsTileset = await Cesium.Cesium3DTileset.fromUrl("https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/gebouwen/3dtiles", {
+                    maximumScreenSpaceError: 300, 
+                    maximumNumberOfLoadedTiles: 10, 
+                    dynamicScreenSpaceError: true,
+                    dynamicScreenSpaceErrorDensity: 0.0025,
+                    dynamicScreenSpaceErrorFactor: 4.0,
+                });
+                viewer.scene.primitives.add(BuildingsTileset);
+            } catch (error) {
+                console.log(`Error loading tileset: ${error}`);
+            }
+
+            // try {
+            //     window.TerreinTileset = await Cesium.Cesium3DTileset.fromUrl("https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/terreinen/3dtiles", {
+            //         maximumScreenSpaceError: 300, // Lower detail for better performance
+            //         maximumNumberOfLoadedTiles: 10, // Limit the number of loaded tiles
+            //         dynamicScreenSpaceError: true,
+            //         dynamicScreenSpaceErrorDensity: 0.0025,
+            //         dynamicScreenSpaceErrorFactor: 4.0,
+            //     });
+            //     viewer.scene.primitives.add(TerreinTileset);
+            // } catch (error) {
+            //     console.log(`Error loading tileset: ${error}`);
+            // }
+
+            // Add a click handler to log coordinates
+const handler2 = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+handler2.setInputAction(function (movement) {
+    const pickedObject = viewer.scene.pick(movement.position);
+    
+    if (Cesium.defined(pickedObject) && pickedObject instanceof Cesium.Cesium3DTileFeature) {
+        // Get the cartographic position (longitude, latitude, height)
+        const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+        
+        if (cartesian) {
+            const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(cartesian);
+            const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            const height = cartographic.height;
+            
+            console.log(`Clicked coordinates: Longitude: ${longitude}, Latitude: ${latitude}, Height: ${height}`);
+        }
+    }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    
+            const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+handler.setInputAction(async function (click) {
+  const pickedObject = viewer.scene.pick(click.position);
+  if (Cesium.defined(pickedObject)) {
+    const refBag = pickedObject.getProperty("bagpandid");
+    console.log("refBag retrieved in Cesium viewer:", refBag);
+    if (refBag) {
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/ifcupload/get-ifc-url?ref_bag_id=${refBag}`);
+        const data = await response.json();
+        if (data.status === 'success') {
+          // Pass the IFC file URL to the viewer hosted at localhost
+          const ifcUrl = `http://127.0.0.1:8000${data.ifc_url}`;
+          window.open(`http://localhost:5173/?ifcUrl=${encodeURIComponent(ifcUrl)}&ref_bag_id=${encodeURIComponent(refBag)}`, '_blank');
+        } else {
+          window.open(`http://127.0.0.1:8000/ifcupload/upload-form/?ref_bag_id=${refBag}`, '_blank');
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
+        }
+
+    window.addEventListener('load', () => {
+    loadFloodDefenseMechanisms();
+});
+
+        window.addEventListener('load', initializeCesium);
+    </script>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+

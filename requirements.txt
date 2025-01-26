@@ -1,0 +1,8 @@
+
+django
+ifcopenshell
+lark
+django-cors-headers
+sparqlwrapper
+requests
+uuid
