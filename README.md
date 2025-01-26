@@ -47,10 +47,10 @@ Replace the text "YOUR ACCESS TOKEN" found in line 620 with your actual access t
 2. Define your "User" and "Password" found in line 56 with the URL of your GraphDB repository.
 
 `BIM-GIS_2.0/django/sparql_filter/views.py`
-Replace the text "url" found in line 36 with the URL of the (external) endpoint where the cadastral data is hosted.
-Define your "User" and "Password" found in line 156 with the URL of your GraphDB (or external) repository.
-Replace the text "url" found in line 170 with the URL of your GraphDB repository.
-Define your "User" and "Password" found in line 269 with the URL of your GraphDB repository.
+1. Replace the text "url" found in line 36 with the URL of the (external) endpoint where the cadastral data is hosted.
+2. Define your "User" and "Password" found in line 156 with the URL of your GraphDB (or external) repository.
+3. Replace the text "url" found in line 170 with the URL of your GraphDB repository.
+4. Define your "User" and "Password" found in line 269 with the URL of your GraphDB repository.
 
 ### Step 6
 Navigate to `django` and start the project. A detailed Django tutorial is available [here.](https://www.w3schools.com/django/django_intro.php)
