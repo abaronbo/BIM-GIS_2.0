@@ -1,6 +1,6 @@
 # BIM-GIS_2.0
 
-This repository contains the source code of the latest version of BIM-GIS 2.0. For a detailed installation guide, please visit [BIM-GIS](https://github.com/abaronbo/BIM-GIS/). The project consists of two main components: A platform based on Django and an web-based IFC viewer. 
+This repository contains the source code of the latest version of BIM-GIS 2.0. For a detailed installation guide, please visit [BIM-GIS](https://github.com/abaronbo/BIM-GIS/). The project consists of two main components: A platform based on Django and an web-based IFC viewer. The report will be available after 31/01/2025.
 
 ## Django
 
@@ -57,7 +57,7 @@ Navigate to `django` and start the project. A detailed Django tutorial is availa
 
 ## IFC Viewer
 
-The IFC viewer was developed using the Typescript libraries of [That Open Company.](https://docs.thatopen.com/intro). The complete documentation, instructions, and required dependencies can be found [here.](https://docs.thatopen.com/components/getting-started). 
+The IFC viewer was developed using the Typescript libraries of [That Open Company.](https://docs.thatopen.com/intro) The complete documentation, instructions, and required dependencies can be found [here.](https://docs.thatopen.com/components/getting-started). 
 
 The main file of the IFC viewer is located in:
 `BIM-GIS_2.0/my-3d-world/src/main.ts`
