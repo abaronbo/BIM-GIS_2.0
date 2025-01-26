@@ -34,14 +34,17 @@ Create a GraphDB account, or you can use another triplestore. A detailed tutoria
 Define the correct login credentials.
 
 `BIM-GIS_2.0/django/cesiumapp/templates/cesium.html`
+
 Replace the text "YOUR ACCESS TOKEN" found in line 365 with your actual access token.
 
 `BIM-GIS_2.0/django/cesiumapp/templates/municipality_cesium.html`
+
 Replace the text "YOUR ACCESS TOKEN" found in line 620 with your actual access token.
 
 `BIM-GIS_2.0/django/ifcupload/add_triples.py`
-Replace the text "url" found in line 54 with the URL of your GraphDB repository.
-Define your "User" and "Password" found in line 56 with the URL of your GraphDB repository.
+
+1. Replace the text "url" found in line 54 with the URL of your GraphDB repository.
+2. Define your "User" and "Password" found in line 56 with the URL of your GraphDB repository.
 
 `BIM-GIS_2.0/django/sparql_filter/views.py`
 Replace the text "url" found in line 36 with the URL of the (external) endpoint where the cadastral data is hosted.
