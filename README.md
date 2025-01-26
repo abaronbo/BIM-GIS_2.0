@@ -55,4 +55,15 @@ Replace the text "YOUR ACCESS TOKEN" found in line 620 with your actual access t
 ### Step 6
 Navigate to `django` and start the project. A detailed Django tutorial is available [here.](https://www.w3schools.com/django/django_intro.php)
 
+## IFC Viewer
+
+The IFC viewer was developed using the Typescript libraries of [That Open Company.](https://docs.thatopen.com/intro). The complete documentation, instructions, and required dependencies can be found [here.](https://docs.thatopen.com/components/getting-started). 
+
+The main file of the IFC viewer is located in:
+`BIM-GIS_2.0/my-3d-world/src/main.ts`
+
+
+
+
+
 
