@@ -1,6 +1,6 @@
 # BIM-GIS_2.0
 
-This repository contains the source code of the latest version of BIM-GIS 2.0. For a detailed installation guide, please visit [BIM-GIS](https://github.com/abaronbo/BIM-GIS/). The project consists of two main components: A platform based on Django and an web-based IFC viewer. The report will be available after 31/01/2025.
+This repository contains the source code of the latest version of BIM-GIS 2.0. For a detailed installation guide of a similar product, please refer to [BIM-GIS](https://github.com/abaronbo/BIM-GIS/). The project consists of two main components: A platform based on Django and an web-based IFC viewer. The report will be available after 31/01/2025.
 
 ## Django
 
